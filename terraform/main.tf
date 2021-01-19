@@ -1,8 +1,13 @@
 # Builds a new VPC along with associated secuirty groups
 # and the EC2 instance
 
+provider "aws" {
+  region = "us-east-1"
+  profile = "terraform-operator"
+}
+
 variable "private_key" {
-  default = "OTN"
+  default = "KEY_NAME"
 }
 
 variable "private_user" {
@@ -19,11 +24,6 @@ variable "vpc_cidr" {
 
 variable "vpc_subnets" {
   default = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
-}
-
-provider "aws" {
-  region = "us-east-1"
-  profile = "terraform-operator"
 }
 
 data "aws_availability_zones" "available" {
