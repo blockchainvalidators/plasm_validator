@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: download plasma
+      get_url:
+        url: https://github.com/staketechnologies/Plasm/releases/download/v1.6.0-dusty/plasm-node-ubuntu-1.6.0-x86_64.tar.xz
+        dest: /tmp
+        checksum: sha256:97db18b72c1d1137e21cb5b9a347fd0fde0f01b9434da7e10b6dca6de224d0b9
+    - name: Install Plasma Binary
+      unarchive:
+        src: /tmp/plasm-node-ubuntu-1.6.0-x86_64.tar.xz
+        dest: /opt

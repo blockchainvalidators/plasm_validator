@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Genereate private key
+      openssl_privatekey:
+        path: /etc/ssl/private/nginx-selfsigned.key
+    - name: Generate a Self Signed OpenSSL certificate
+      community.crypto.x509_certificate:
+        path: /etc/ssl/certs/nginx-selfsigned.crt
+        privatekey_path: /etc/ssl/private/nginx-selfsigned.key
+        provider: selfsigned
+    - name: Generate dhparam file
+      community.crypto.openssl_dhparam:
+        path: /etc/ssl/certs/dhparam.pem
+        size: 2048

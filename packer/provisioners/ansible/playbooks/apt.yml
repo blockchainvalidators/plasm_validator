@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: update ubuntu
+    apt:
+      upgrade: yes
+      update_cache: yes
+      cache_valid_time: 86400
+  - name: install nginx, python and openssl
+    apt:
+      name:
+        - libssl-dev
+        - nginx
+        - python-pip
+        - openssl
+  - name: Install pyopenssl
+    pip:
+      name:
+        - pyopenssl

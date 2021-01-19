@@ -1,0 +1,71 @@
+{
+    "variables": {
+        "ami_name": "plasm_validator_ami",
+        "aws_region": "us-east-1",
+        "ssh_username": "ubuntu",
+        "vpc_id": "vpc-XXXXXXX",
+        "subnet_id": "subnet-XXXXXXX"
+    },
+    "builders": [{
+        "type": "amazon-ebs",
+        "region": "{{user `aws_region`}}",
+        "instance_type": "t2.micro",
+        "force_deregister": "true",
+        "ssh_username": "{{user `ssh_username`}}",
+        "communicator": "ssh",
+        "associate_public_ip_address": true,
+        "subnet_id": "{{user `subnet_id`}}",
+        "ami_name": "{{user `ami_name`}}",
+        "source_ami_filter": {
+            "filters": {
+              "virtualization-type": "hvm",
+              "architecture": "x86_64",
+              "name": "ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*",
+              "block-device-mapping.volume-type": "gp2",
+              "root-device-type": "ebs"
+            },
+            "owners": ["099720109477"],
+            "most_recent": true
+          },
+        "run_tags": {
+            "Name": "packer-build-image"
+        },
+        "tags": {
+            "Validator": "Plasm-Validator"
+    }
+    }],
+    "provisioners": [{
+          "type": "shell",
+          "inline": "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done"
+        },
+        {
+          "type": "shell",
+          "script": "./packer/provisioners/scripts/bootstrap.sh"
+        },
+        {
+          "type": "ansible-local",
+          "playbook_file": "./packer/provisioners/ansible/playbooks/apt.yml"
+        },
+        {
+          "type": "ansible-local",
+          "playbook_file": "./packer/provisioners/ansible/playbooks/plasm_install.yml"
+        },
+        {
+          "type": "shell",
+          "script": "./packer/provisioners/scripts/ansible_galaxy.sh"
+        },
+        {
+          "type": "ansible-local",
+          "playbook_file": "./packer/provisioners/ansible/playbooks/ssl.yml"
+        },
+        {
+          "type": "ansible-local",
+          "playbook_file": "./packer/provisioners/ansible/playbooks/plasm_configure.yml",
+          "playbook_dir": "./packer/provisioners/ansible"
+        },
+        {
+          "type": "shell",
+          "script": "./packer/provisioners/scripts/cleanup.sh"
+        }        
+    ]
+}
